@@ -1,5 +1,7 @@
+import { tryParse } from '../requisite-parser/parser';
+
 export const ParseService = {
-  parse(input) {
+  mockParse(input) {
     if (input == "and" || input == "or")
     return {
       data: null,
@@ -15,6 +17,10 @@ export const ParseService = {
     }
   },
 
+  parse(input) {
+    return tryParse(input)
+  },
+  
   validate(input) {
     const parsedResult = ParseService.parse(input)
     if (parsedResult.error) return false
