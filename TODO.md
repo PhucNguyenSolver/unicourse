@@ -17,7 +17,7 @@ Bootstrap table
 ### Upload file
 CSV 
 - Read csv
-- Skip header if it exists !?
+- Skip header if it exists
 
 ### Save to database
 MYSQL

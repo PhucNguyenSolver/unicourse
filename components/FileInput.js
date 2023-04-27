@@ -4,37 +4,35 @@ import Papa from "papaparse"
 const FileInput = ({onDataSuccess, onDataError=() => {}}) => {
 
     const tryParseData = (data) => {
-      try {
-        return data.map(row => {
-          let courseId = row[0]
-          let requisite = row[1]
-          return { courseId, requisite }
-        })
-      } catch {
-        return null
-      }
+        try {
+            const result = data.slice(1).map((row) => {
+                let courseId = row[0]
+                let requisite = row[1]
+                return { courseId, requisite }
+            })
+            return result.filter((c) => c.courseId != "")
+        } catch {
+            return null
+        }
     }
 
     const handleFileChange = (e) => {
-        const files = e.target.files
-        console.log(files)
-        if (files) {
-            console.log(files[0])
-            Papa.parse(files[0], {
-                complete: function (results) {
-                    // console.log("Result:", results)
-                    console.log("Data:", results.data)
-                    let parsed = tryParseData(results.data)
-                    if (parsed === null) onDataError("Invalid CSV format")
-                    else onDataSuccess(parsed)
-                },
-            })
-        }
+        const fileObj = e.target.files && e.target.files[0]
+        if (!fileObj) return
+
+        Papa.parse(fileObj, {
+            complete: function (results) {
+                let parsed = tryParseData(results.data)
+                if (parsed === null) onDataError("Invalid CSV format")
+                else onDataSuccess(parsed)
+                e.target.value = null
+            },
+        })
     }
 
     return (
         <span>
-            <input type="file" name="myFile" onChange={handleFileChange} />
+            <input accept=".csv" type="file" name="myFile" onChange={handleFileChange} />
         </span>
     )
 }
