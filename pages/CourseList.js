@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import Table from "../components/Table"
 import data from "../data.js"
 import { ParseService } from "../services/ParseService"
+import FileInput from '../components/FileInput';
 
 
 const CourseList = () => {
@@ -11,15 +12,15 @@ const CourseList = () => {
     "Invalid: " + ParseService.parse(course.requisite).error
   )})
 
-  useEffect(() => {
-    loadData().then(courses => {
-      if (!courses) return
-      let coursesWithStatus = courses.map(c => prepareCourseWithStatus(c))
-      setConstraints(coursesWithStatus)
-    }).catch(e => {
-      console.error(e)
-    })
-  }, [])
+  // useEffect(() => {
+  //   loadData().then(courses => {
+  //     if (!courses) return
+  //     let coursesWithStatus = courses.map(c => prepareCourseWithStatus(c))
+  //     setConstraints(coursesWithStatus)
+  //   }).catch(e => {
+  //     console.error(e)
+  //   })
+  // }, [])
 
   useEffect(() => {
     console.log({constraints})
@@ -39,11 +40,25 @@ const CourseList = () => {
     })
   }
 
+  const onClearData = (data) => {
+    setConstraints([])
+  }
+
+  const onDataAvailable = (courses) => {
+    setConstraints(courses.map(prepareCourseWithStatus))
+  }
+
   return (
     <div>
       <div>
         <h1>Manage <i>Course-Constraint</i></h1>
-        <button onClick={() => alert("Upload CSV")}>Upload CSV</button>
+        {/* TODO: ignore header if needed */}
+        <FileInput 
+          onDataSuccess={onDataAvailable} 
+          onDataError={err => alert(err)}
+        />
+        {/* <button onClick={() => alert("Upload CSV")}>Upload CSV</button> */}
+        <button onClick={onClearData}>Clear</button>
         <button onClick={() => alert("Commit")}>Commit</button>
         {/* <button onClick={() => alert("Add New Constraint")}>Add New Constraint</button> */}
       </div>
