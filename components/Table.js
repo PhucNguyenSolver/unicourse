@@ -3,13 +3,12 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import cellEditFactory, { Type } from 'react-bootstrap-table2-editor';
 import { ParseService } from '../services/ParseService';
-
 import ToolkitProvider, { CSVExport } from "react-bootstrap-table2-toolkit"
+
 const { ExportCSVButton } = CSVExport
 
-
 const Table = (props) => {
-  const { constraints, updateCourseConstraint } = props
+  const { items, updateListItems } = props
 
   const columns = [
     {
@@ -39,7 +38,7 @@ const Table = (props) => {
   function afterSaveCell(oldValue, newValue, row, column) {
     console.log("huray")
     console.log({oldValue, newValue, row, column})
-    updateCourseConstraint(row.courseId, newValue)
+    updateListItems(row.courseId, newValue)
   }
   
   function beforeSaveCell(oldValue, newValue, row, column, done) {
@@ -63,31 +62,18 @@ const Table = (props) => {
     }, 0);
     return { async: true };
   }
-
-  const rowEvents = {
-    onClick: (e, row, rowIndex) => {
-      // let status = row.status
-      // if (status === "Valid") return
-      // else alert(status)
-      // console.log(`clicked on row with index: ${rowIndex}`);
-    },
-    onMouseEnter: (e, row, rowIndex) => {
-      // console.log(`enter on row with index: ${rowIndex}`);
-    }
-  };
   
   const MyBootstrapTable = (props) => (
     <BootstrapTable 
       { ...props }
-      keyField='courseId' data={ constraints } columns={ columns } 
+      keyField='courseId' data={ items } columns={ columns } 
       cellEdit={ cellEditFactory({
         mode: 'click',
         blurToSave: true,
         beforeSaveCell: beforeSaveCell,
         afterSaveCell: afterSaveCell, 
       }) }
-      noDataIndication={<div><p>Table is empty.</p><p>You can <b><i>Import CSV</i></b> files, make change if needed and <b><i>Commit</i></b> change </p></div>}
-      rowEvents={ rowEvents }
+      noDataIndication={<div><p>Table is empty.</p><p>You can <b><i>Import CSV</i></b> files, make change if needed and <b><i>Commit</i></b> to database </p></div>}
       bootstrap4
       striped hover condensed />
   )
@@ -95,22 +81,28 @@ const Table = (props) => {
   return (
     <ToolkitProvider
       keyField="courseId"
-      data={ constraints }
+      data={ items }
       columns={ columns }
       exportCSV
     >
       {
         props => (
           <>
-            <ExportCSVButton { ...props.csvProps }>Export CSV!!</ExportCSVButton>
-            <hr />
             <MyBootstrapTable { ...props.baseProps } />
+            <hr />
+            <ExportCSVButton {...props.csvProps} style={styles.button}>Export CSV</ExportCSVButton>
           </>
         )
       }
     </ToolkitProvider>
   )
 
+}
+
+const styles = {
+  button: {
+    border: "solid",
+  }
 }
 
 export default Table;

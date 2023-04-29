@@ -32,9 +32,17 @@ const FileInput = ({onDataSuccess, onDataError=() => {}}) => {
 
     return (
         <span>
-            <input accept=".csv" type="file" name="myFile" onChange={handleFileChange} />
+            <label htmlFor="upload-file" style={styles.label}>Import CSV</label>
+            <input accept=".csv" type="file" name="myFile" onChange={handleFileChange} id="upload-file" hidden />
         </span>
     )
 }
 
+const styles = {
+  label: {
+    cursor: "pointer",
+    border: "solid",
+    padding: "1px 6px"
+  }
+}
 export default FileInput

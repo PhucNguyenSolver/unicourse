@@ -27,7 +27,6 @@ const CourseList = () => {
   }, [constraints])
 
   const loadData = async() => {
-    // TODO
     return data.constraints
   }
   
@@ -48,24 +47,40 @@ const CourseList = () => {
     setConstraints(courses.map(prepareCourseWithStatus))
   }
 
+  const onCommit = () => {
+    alert("Commit")
+  }
+
   return (
-    <div>
-      <div>
-        <h1>Manage <i>Course-Constraint</i></h1>
-        {/* TODO: ignore header if needed */}
-        <FileInput 
-          onDataSuccess={onDataAvailable} 
-          onDataError={err => alert(err)}
-        />
-        {/* <button onClick={() => alert("Upload CSV")}>Upload CSV</button> */}
-        <button onClick={onClearData}>Clear</button>
-        <button onClick={() => alert("Commit")}>Commit</button>
-        {/* <button onClick={() => alert("Add New Constraint")}>Add New Constraint</button> */}
+    <div className='container'>
+      <div >
+        <h1>Manage <b>Course-Constraint</b></h1>
+        <div style={styles.tableHeader}>
+          <div style={{display: "flex", flexDirection: "column"}}>
+            <FileInput 
+              onDataSuccess={onDataAvailable} 
+              onDataError={err => alert(err)}
+            />
+          </div>
+          <div>
+            <button onClick={onClearData}>Clear</button>
+            <button onClick={onCommit}>Commit</button>
+          </div>
+        </div>
       </div>
 
-      <Table constraints={constraints} updateCourseConstraint={updateCourseRequisite} />
+      <Table items={constraints} updateListItems={updateCourseRequisite} />
     </div>
   );
 }
 
+const styles = {
+  tableHeader: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    // backgroundColor: "pink"
+  }
+}
 export default CourseList;
