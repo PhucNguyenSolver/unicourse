@@ -1,35 +1,31 @@
 import React, {useEffect, useState} from 'react';
 import Table from "../components/Table"
+import LoadingButton from "../components/LoadingButton"
 import data from "../data.js"
 import { ParseService } from "../services/ParseService"
 import FileInput from '../components/FileInput';
 
+const updateDB = async (payload) => {
+  console.log(payload)
+  return fetch("api/requisites", {
+      method: "POST",
+      body: JSON.stringify(payload),
+  }).then(res => res.json())
+}
+
+const prepareCourseWithStatus = course => ({...course, status: ParseService.validate(course.requisite) ? "Valid" : (
+  "Invalid: " + ParseService.parse(course.requisite).error
+)})
+
 
 const CourseList = () => {
-  const [constraints, setConstraints] = useState([]);
-  
-  const prepareCourseWithStatus = course => ({...course, status: ParseService.validate(course.requisite) ? "Valid" : (
-    "Invalid: " + ParseService.parse(course.requisite).error
-  )})
+  const [constraints, setConstraints] = useState(() => {
+    return []
+    // return data.constraints.map(prepareCourseWithStatus)
+  });
 
-  // useEffect(() => {
-  //   loadData().then(courses => {
-  //     if (!courses) return
-  //     let coursesWithStatus = courses.map(c => prepareCourseWithStatus(c))
-  //     setConstraints(coursesWithStatus)
-  //   }).catch(e => {
-  //     console.error(e)
-  //   })
-  // }, [])
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    console.log({constraints})
-  }, [constraints])
-
-  const loadData = async() => {
-    return data.constraints
-  }
-  
   const updateCourseRequisite = (courseId, newRequisite) => {
     setConstraints(prev => {
       return prev.map(c => {
@@ -47,8 +43,39 @@ const CourseList = () => {
     setConstraints(courses.map(prepareCourseWithStatus))
   }
 
-  const onCommit = () => {
-    alert("Commit")
+  const prepareRequest = async (constraints) => {
+      let parsedConstraints = []
+      for (let c of constraints) {
+        const parseResult = ParseService.parse(c.requisite)
+
+        if (parseResult.error) throw `${c.courseId}: ${parseResult.error}`
+        
+        // TODO: handle empty string
+        if (parseResult.data == "") {
+          parsedConstraints.push({
+              courseId: c.courseId,
+              condition: null,
+          })
+        } else {
+          parsedConstraints.push({
+              courseId: c.courseId,
+              condition: JSON.parse(parseResult.data),
+          })
+        }
+      }
+      return parsedConstraints
+  }
+
+  const onCommit = async () => {
+      const done = () => alert("Success!")
+      const failed = (msg) => alert(msg || "Fail") 
+
+      if (confirm("You want to commit these constraints?"))
+      {
+        setLoading(true)
+        await prepareRequest(constraints).then(updateDB).then(JSON.stringify).then(done).catch(failed)
+        setLoading(false)
+      }
   }
 
   return (
@@ -63,8 +90,8 @@ const CourseList = () => {
             />
           </div>
           <div>
-            <button onClick={onClearData}>Clear</button>
-            <button onClick={onCommit}>Commit</button>
+            <LoadingButton title="Clear" loading={false} onClick={onClearData} />
+            <LoadingButton title="Commit" loading={loading} onClick={onCommit} />
           </div>
         </div>
       </div>

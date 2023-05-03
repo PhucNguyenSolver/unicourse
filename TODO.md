@@ -21,11 +21,11 @@ CSV
 
 ### Save to database
 MYSQL
-- update database !?
+- call api update
+- handle empty string !?
 
 ### Validation
 Parser
 - gắn trên FE
 - accept empty string
-- gắn ở BE !?
-- fix eg. andy / orr
+- fix eg. andy / orr !?

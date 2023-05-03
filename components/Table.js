@@ -41,28 +41,6 @@ const Table = (props) => {
     updateListItems(row.courseId, newValue)
   }
   
-  function beforeSaveCell(oldValue, newValue, row, column, done) {
-    setTimeout(() => {
-      if (oldValue === newValue) {
-        done(false)
-        return
-      }
-
-      if (ParseService.validate(newValue) === true) {
-        done(true);
-        return
-      }
-      
-      let error = ParseService.parse(newValue).error
-      if (confirm(`Invalid input: ${error}\nDo you want to accept this change?`)) {
-        done(true);
-      } else {
-        done(false);
-      }
-    }, 0);
-    return { async: true };
-  }
-  
   const MyBootstrapTable = (props) => (
     <BootstrapTable 
       { ...props }
@@ -70,7 +48,6 @@ const Table = (props) => {
       cellEdit={ cellEditFactory({
         mode: 'click',
         blurToSave: true,
-        beforeSaveCell: beforeSaveCell,
         afterSaveCell: afterSaveCell, 
       }) }
       noDataIndication={<div><p>Table is empty.</p><p>You can <b><i>Import CSV</i></b> files, make change if needed and <b><i>Commit</i></b> to database </p></div>}
