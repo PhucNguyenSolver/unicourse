@@ -25,5 +25,7 @@ MYSQL
 
 ### Validation
 Parser
-- gắn trên FE !?
+- gắn trên FE
+- accept empty string
 - gắn ở BE !?
+- fix eg. andy / orr

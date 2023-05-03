@@ -18,6 +18,10 @@ export const ParseService = {
   },
 
   parse(input) {
+    if (input == "") return {
+      data: "",
+      error: null,
+    }
     return tryParse(input)
   },
   
