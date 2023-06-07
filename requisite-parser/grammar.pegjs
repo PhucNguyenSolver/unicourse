@@ -14,7 +14,6 @@
     }
 
     function makeOp(OP, head, tail) {
-        // TODO
         let leaves = tail.reduce(
             (acc, next) => { return [...acc, next[3]] },
             [head]
@@ -37,11 +36,15 @@
 
 /* ----------- AST ----------- */
 
-Expression = _ expr:TrimmedExpression _ { return expr }
+Expression = _ expr:Ory _ { return expr }
 
-TrimmedExpression
-    = head:Term tail:(_ AND _ Term)+ { return makeOp(Constants.AND, head, tail) }
-    / head:Term tail:(_  OR _ Term)+ { return makeOp(Constants.OR,  head, tail) }
+Ory
+	= head:Andy tail:(_  OR _ Andy)+ { return makeOp(Constants.OR,  head, tail) }
+    /Andy
+
+Andy
+	= head:Term tail:(_ AND _ Term)+ { return makeOp(Constants.AND, head, tail) }
+    / head:Term tail:(_ Term)+ { return makeOp(Constants.AND, head, tail) }
     / Term
 
 Term
@@ -49,19 +52,18 @@ Term
     / CourseType
 
 CourseType
-    = course:courseId _ "-" _ type:conditionType { return makeCourse(course, type) }
+    = course:courseId _ "(" _ type:conditionType _ ")" { return makeCourse(course, type) }
     / course:courseId { return makeCourse(course) }
 
 
 /* ----------- Lexemes ----------- */
 
-AND = "AND"i
+AND = "và"i
 
-OR = "OR"i
+OR = "hoặc"i
 
 courseId "courseId"
-    = (AND / OR) { expected("courseId") }
-    / chars:[a-zA-Z0-9]+ { return chars.join("").toUpperCase() }
+    = chars:([a-zA-Z][a-zA-Z][0-9][0-9][0-9][0-9]) { return chars.join("").toUpperCase() }
 
 conditionType
     = "HT"i { return Constants.HT }
