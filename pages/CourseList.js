@@ -6,7 +6,6 @@ import { ParseService } from "../services/ParseService"
 import FileInput from '../components/FileInput';
 
 const updateDB = async (payload) => {
-  console.log(payload)
   return fetch("api/requisites", {
       method: "POST",
       body: JSON.stringify(payload),
@@ -43,7 +42,7 @@ const CourseList = () => {
     setConstraints(courses.map(prepareCourseWithStatus))
   }
 
-  const prepareRequest = async (constraints) => {
+  const prepareRequest = async (constraints, checkURL) => {
       let parsedConstraints = []
       for (let c of constraints) {
         const parseResult = ParseService.parse(c.requisite)
@@ -63,17 +62,31 @@ const CourseList = () => {
           })
         }
       }
-      return parsedConstraints
+      return {head: checkURL, tail: parsedConstraints}
   }
 
   const onCommit = async () => {
-      const done = () => alert("Success!")
-      const failed = (msg) => alert(msg || "Fail") 
+      const connected = (datas) => {
+        if (datas.data === true) alert("Success")
+        else {
+          console.warn("Server response:", JSON.stringify(datas))
+          console.log(datas)
+          let msg = datas.error.description || datas.error.reason || datas.error.code || ""
+          alert("Operation failed. " + msg)
+        }
+      }
 
-      if (confirm("You want to commit these constraints?"))
-      {
+      if (confirm("You want to commit these constraints?")) {
+        let customCheckUrl = prompt("Custom check-service: ", "http://localhost:8000")
         setLoading(true)
-        await prepareRequest(constraints).then(updateDB).then(JSON.stringify).then(done).catch(failed)
+        await prepareRequest(constraints, customCheckUrl)
+          .then(updateDB)
+          .then(connected)
+          .catch((e) => {
+            console.warn(e)
+            alert("Unknown Error")
+          })
+
         setLoading(false)
       }
   }
